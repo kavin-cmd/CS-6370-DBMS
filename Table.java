@@ -249,6 +249,18 @@ public class Table
         List <Comparable []> rows = new ArrayList <> ();
 
         //  T O   B E   I M P L E M E N T E D  - Project 2
+        // Check if the index is available
+        if (mType != MapType.NO_MAP) 
+        {
+            // Use the index to efficiently retrieve the tuple with the given keyVal
+            Comparable[] tuple = index.get(keyVal);
+
+            // Check if the tuple with the keyVal exists in the table
+            if (tuple != null) 
+            {
+                rows.add(tuple);
+            }
+        }
         
 
         return new Table (name + count++, attribute, domain, key, rows);
