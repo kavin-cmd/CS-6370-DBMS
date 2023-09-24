@@ -78,7 +78,7 @@ public class Table
     {
         return switch (mType) {
         case TREE_MAP    -> new TreeMap <> ();
-//      case LINHASH_MAP -> new LinHashMap <> (KeyType.class, Comparable [].class);
+        case LINHASH_MAP -> new LinHashMap <> (KeyType.class, Comparable [].class);
 //      case BPTREE_MAP  -> new BpTreeMap <> (KeyType.class, Comparable [].class);
         default          -> null;
         }; // switch
@@ -119,6 +119,7 @@ public class Table
         domain    = _domain;
         key       = _key;
         tuples    = new ArrayList <> ();
+        //tuples = new FileList(_name, count);
         index     = makeMap ();
     } // primary constructor
 
@@ -246,9 +247,9 @@ public class Table
     {
         out.println ("RA> " + name + ".select (" + keyVal + ")");
 
-        List <Comparable []> rows = new ArrayList <> ();
+        List <Comparable []> rows = new ArrayList<>();
 
-        //  T O   B E   I M P L E M E N T E D  - Project 2
+        // //  T O   B E   I M P L E M E N T E D  - Project 2
         // Check if the index is available
         if (mType != MapType.NO_MAP) 
         {
@@ -261,9 +262,9 @@ public class Table
                 rows.add(tuple);
             }
         }
-        
 
-        return new Table (name + count++, attribute, domain, key, rows);
+        // Create a new table with the selected rows
+        return new Table(name + count++, attribute, domain, key, rows);
     } // select
 
     /************************************************************************************
@@ -454,8 +455,42 @@ public class Table
     public Table i_join (String attributes1, String attributes2, Table table2)
     {
         //  T O   B E   I M P L E M E N T E D  - Project 2
+        out.println("RA> " + name + ".i_join (" + attributes1 + ", " + attributes2 + "," + table2.name + ")");
 
-        return null;
+        String[] u_attrs = attributes1.split(" ");
+        String[] t_attrs = attributes2.split(" ");
+    
+        List<Comparable[]> rows = new ArrayList<>();
+    
+        // Check if the attributes match
+        if (u_attrs.length != t_attrs.length) 
+        {
+            out.println("Please use attributes that are equivalent");
+            return null;
+        }
+        
+        // Check if the index is available for both tables
+        if (mType != MapType.NO_MAP && table2.mType != MapType.NO_MAP) 
+        {
+            for (int i = 0; i < u_attrs.length; i++) 
+            {
+                Comparable[] ttup = tuples.get(i);
+                KeyType keyVal = new KeyType(extract(ttup, u_attrs));
+                Comparable[] utup = table2.index.get(keyVal);
+                
+                if (utup != null) 
+                {
+                    // A matching tuple is found in the index of table2
+                    Comparable[] concatenatedTuple = new Comparable[ttup.length + utup.length];
+                    System.arraycopy(ttup, 0, concatenatedTuple, 0, ttup.length);
+                    System.arraycopy(utup, 0, concatenatedTuple, ttup.length, utup.length);
+                    rows.add(concatenatedTuple);
+                }
+            }
+        }
+        
+        return new Table(name + count++, attribute, domain, key, rows);
+        //return null;
 
     } // i_join
 
