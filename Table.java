@@ -74,6 +74,12 @@ public class Table
     /************************************************************************************
      * Make a map (index) given the MapType.
      */
+
+    // declaring the variable recordsize for filelist 
+    private int recordSize;
+
+    private FileList fileList;
+
     private static Map <KeyType, Comparable []> makeMap ()
     {
         return switch (mType) {
@@ -141,7 +147,32 @@ public class Table
         key       = _key;
         tuples    = _tuples;
         index     = makeMap ();
-    } // constructor
+        
+        //comment/uncomment starts from here to execute the files based on arrayList()/ FileList
+        // Calculate recordSize
+        recordSize = 0;
+        for (Class<?> aDomain : domain) 
+        {
+            if (aDomain == Integer.class) 
+            {
+                recordSize += 4; // Integer takes 4 bytes
+            } 
+            else if (aDomain == String.class) 
+            {
+                recordSize += 64; // Assume a maximum string size of 64 bytes
+            } 
+        }
+
+        // Initialize the FileList
+        FileList fileList = new FileList(_name, recordSize);
+        for (Comparable[] tuple : tuples) 
+        {
+            fileList.add(tuple);
+        }
+        // comment/ uncomment ends here to execute the ArrayList part of the output
+    }
+
+
 
     /************************************************************************************
      * Construct an empty table from the raw string specifications.
@@ -177,8 +208,11 @@ public class Table
         var attrs     = attributes.split (" ");
         var colDomain = extractDom (match (attrs), domain);
         var newKey    = (Arrays.asList (attrs).containsAll (Arrays.asList (key))) ? key : attrs;
+        
+        //switch between the default and the fileList execution 
 
-        List <Comparable []> rows = new ArrayList <> ();
+        // List <Comparable []> rows = new ArrayList <> ();
+        List <Comparable []> rows = new FileList(attributes, recordSize);
 
         //  T O   B E   I M P L E M E N T E D 
         for (var tuple : tuples) 

@@ -65,13 +65,40 @@ public class FileList
      */
     public boolean add (Comparable [] tuple)
     {
-        byte [] record = null;  // FIX: table.pack (tuple);
+        // changed the initialization to match the correct size of the record
+        byte[] record = new byte[recordSize]; //FIX: table.pack (tuple);
 
-        if (record.length != recordSize) {
-            out.println ("FileList.add: wrong record size " + record.length);
-            return false;
-        } // if
-        // TO BE IMPLEMENTED 
+        // TO BE IMPLEMENTED
+
+        // Serialize and write each element of the tuple to the record
+        for (int i = 0; i < tuple.length; i++) 
+        {
+            try 
+            {
+                ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+                ObjectOutputStream objectStream = new ObjectOutputStream(byteStream);
+                objectStream.writeObject(tuple[i]);
+                objectStream.flush();
+                byte[] serializedData = byteStream.toByteArray();
+                
+                // Check if the serialized data size matches the expected size
+                if (serializedData.length != 4) 
+                {
+                    out.println("FileList.add: wrong element size " + serializedData.length);
+                    return false;
+                }
+
+                // Copy the serialized data to the record array
+                System.arraycopy(serializedData, 0, record, i * 4, serializedData.length);
+                
+                objectStream.close();
+            } 
+            catch (IOException ex) 
+            {
+                out.println("FileList.add: unable to serialize tuple - " + ex);
+                return false;
+            }
+        }
         try 
         {
             // Calculate the file position for the new record
@@ -80,29 +107,18 @@ public class FileList
             // Seek to the correct position in the file
             file.seek(filePosition);
 
-            // Serialize and write the tuple to the file
-            for (int i = 0; i < tuple.length; i++) 
-            {
-                // Assuming each element of the tuple is a Serializable object
-                ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-                ObjectOutputStream objectStream = new ObjectOutputStream(byteStream);
-                objectStream.writeObject(tuple[i]);
-                objectStream.flush();
-                byte[] serializedData = byteStream.toByteArray();
-                file.write(serializedData);
-                objectStream.close();
-            }
+            // Write the record to the file
+            file.write(record);
 
             // Increment the record count
             nRecords++;
 
             return true;
-        } 
-        catch (IOException ex) 
-        {
+        } catch (IOException ex) {
             out.println("FileList.add: unable to write record - " + ex);
             return false;
         }
+
     } // add
 
     /***************************************************************************
