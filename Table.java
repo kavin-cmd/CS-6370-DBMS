@@ -83,7 +83,7 @@ public class Table
     private static Map <KeyType, Comparable []> makeMap ()
     {
         return switch (mType) {
-        case TREE_MAP    -> new TreeMap <> ();
+        // case TREE_MAP    -> new TreeMap <> ();
         case LINHASH_MAP -> new LinHashMap <> (KeyType.class, Comparable [].class);
 //      case BPTREE_MAP  -> new BpTreeMap <> (KeyType.class, Comparable [].class);
         default          -> null;
@@ -105,7 +105,7 @@ public class Table
         arraycopy (arr2, 0, result, arr1.length, arr2.length);
         return result;
     } // concat
-
+     
     //-----------------------------------------------------------------------------------
     // Constructors
     //-----------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ public class Table
         key       = _key;
         tuples    = new ArrayList <> ();
         //tuples = new FileList(_name, count);
-        index     = makeMap ();
+        index = new HashMap<>();
     } // primary constructor
 
     /************************************************************************************
@@ -150,25 +150,25 @@ public class Table
         
         //comment/uncomment starts from here to execute the files based on arrayList()/ FileList
         // Calculate recordSize
-        recordSize = 0;
-        for (Class<?> aDomain : domain) 
-        {
-            if (aDomain == Integer.class) 
-            {
-                recordSize += 4; // Integer takes 4 bytes
-            } 
-            else if (aDomain == String.class) 
-            {
-                recordSize += 64; // Assume a maximum string size of 64 bytes
-            } 
-        }
+        // recordSize = 0;
+        // for (Class<?> aDomain : domain) 
+        // {
+        //     if (aDomain == Integer.class) 
+        //     {
+        //         recordSize += 4; // Integer takes 4 bytes
+        //     } 
+        //     else if (aDomain == String.class) 
+        //     {
+        //         recordSize += 64; // Assume a maximum string size of 64 bytes
+        //     } 
+        // }
 
-        // Initialize the FileList
-        FileList fileList = new FileList(_name, recordSize);
-        for (Comparable[] tuple : tuples) 
-        {
-            fileList.add(tuple);
-        }
+        // // Initialize the FileList
+        // FileList fileList = new FileList(_name, recordSize);
+        // for (Comparable[] tuple : tuples) 
+        // {
+        //     fileList.add(tuple);
+        // }
         // comment/ uncomment ends here to execute the ArrayList part of the output
     }
 
@@ -210,9 +210,9 @@ public class Table
         var newKey    = (Arrays.asList (attrs).containsAll (Arrays.asList (key))) ? key : attrs;
         
         //switch between the default and the fileList execution 
-
-        // List <Comparable []> rows = new ArrayList <> ();
-        List <Comparable []> rows = new FileList(attributes, recordSize);
+        
+        List <Comparable []> rows = new ArrayList <> ();
+        // List <Comparable []> rows = new FileList(attributes, recordSize);
 
         //  T O   B E   I M P L E M E N T E D 
         for (var tuple : tuples) 
